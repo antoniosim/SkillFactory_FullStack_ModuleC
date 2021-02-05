@@ -1,5 +1,8 @@
 const URL = 'https://picsum.photos/v2/list?limit=';
 
+//поле ввода для количества картинок
+const pic_qnty= document.querySelector('.js_pic_qnty');
+
 //кнопка отправки запроса
 const btn_node = document.querySelector('.js_btn_load');
 
@@ -8,12 +11,12 @@ const res_node = document.querySelector('.js_result');
 
 //функция обработки запроса
 function makeGetRequest(url, callback){
-  var xhr = new XMLHttpRequest();
+  let xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
   
   xhr.onload = function() {
-    if (xhr.status != 200) {
-      console.log(`Статус: ${xhr.status}`);  
+    if (xhr.status !== 200) {
+      res_node.textContent = `Статус: ${xhr.status}`;
     } else {
       if (callback) {
         const res = JSON.parse(xhr.response);
@@ -23,7 +26,7 @@ function makeGetRequest(url, callback){
   };
 
   xhr.onerror = function() {
-    console.log(`Ошибка запроса: ${xhr.status}`);
+    res_node.textContent =`Ошибка запроса: ${xhr.status}`;
   };
   
   xhr.send();
@@ -31,7 +34,6 @@ function makeGetRequest(url, callback){
 
 //функция вывода результата в блок
 function displayResult(json_data) {
-  console.log(json_data);
   let result = '';
   json_data.forEach(item => {
     result +=  `
@@ -44,17 +46,23 @@ function displayResult(json_data) {
   })
 }
 
-btn_node.addEventListener('click', () => {
-  console.clear();
-  console.log('Начало запроса');
-  let pic_qnty = parseInt(document.querySelector('.js_pic_qnty').value);
-  if (pic_qnty>=1 && pic_qnty<=10) {
-    makeGetRequest(URL+pic_qnty, displayResult);
-    console.log('Запрос выполнен');
+pic_qnty.addEventListener('input', () => {
+  let pic_limit = parseInt(pic_qnty.value);
+  if (pic_limit>=1 && pic_limit<=10) {
+    res_node.textContent = `Будет выведено ${pic_limit} картинок`;
   } else {
-    document.querySelector('.js_result').textContent = `Число ${pic_qnty} вне диапазона от 1 до 10`;
-    console.log('Запрос не выполнялся');
+    res_node.textContent = `Число ${pic_limit} вне диапазона от 1 до 10`;
   }
-  document.querySelector('.js_pic_qnty').value = '';
+
+})
+
+btn_node.addEventListener('click', () => {
+  let pic_limit = parseInt(pic_qnty.value);
+  if (pic_limit>=1 && pic_limit<=10) {
+    makeGetRequest(URL+pic_limit, displayResult);
+  } else {
+    res_node.textContent = `Число ${pic_limit} вне диапазона от 1 до 10`;
+  }
+  pic_qnty.value = '';
 })
 
